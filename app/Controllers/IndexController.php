@@ -38,7 +38,8 @@ class IndexController extends BaseController
 
 		$dbService = new DbService(config('database')['adapter']);
 		$connection = $dbService->getAdapter()->getConnection();
-		try {
+		try
+		{
 			$connection->autocommit(false);
 			$connection->begin_transaction();
 			$user = $dbService->query("SELECT * FROM users WHERE id = ? LIMIT 1 FOR UPDATE", [$this->user['id']]);
@@ -51,12 +52,13 @@ class IndexController extends BaseController
 			}
 			else
 				return $this->jsonResult(['success' => false, 'msg' => 'not enough mana']);
+
+			$connection->commit();
+			$connection->close();
 		} catch (Exception $e) {
 			$connection->rollback();
 			return $this->jsonResult(['success' => false, 'msg' => 'some error']);
 		}
-		$connection->commit();
-		$connection->close();
 		return $this->jsonResult(['success' => true]);
 	}
 }
